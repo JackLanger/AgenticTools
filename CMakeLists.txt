@@ -4,11 +4,7 @@ project(AgenticTools)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(AgenticTools
-        src/main.cpp
-        src/commands.cpp
-        src/commands.hpp
-        src/window.cpp
-        src/window.hpp)
+        src/main.cpp)
 
 target_link_libraries(AgenticTools PRIVATE user32)
 

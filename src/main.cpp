@@ -335,7 +335,7 @@ namespace commands {
     class MoveCommand final : public Command {
     public:
         std::string name() const override {
-            return "mouse move";
+            return "move";
         }
 
         void execute(const std::vector<std::string> &args) const override {
@@ -367,7 +367,7 @@ namespace commands {
     class ClickCommand final : public Command {
     public:
         [[nodiscard]] std::string name() const override {
-            return "mouse click";
+            return "click";
         }
 
         void execute(const std::vector<std::string> &args) const override {
@@ -410,6 +410,14 @@ int main(const int argc, char *argv[]) {
         });
     }
 
+    DEBUG_LOG("Command map initialized with " << command_map.size() << " commands");
+#ifdef _DEBUG
+    for (const auto &cmd: command_map) {
+        DEBUG_LOG("Registered command: " << cmd.first);
+    }
+#endif
+
+
     //    command interpreter loop
     while (true) {
         try {
@@ -431,7 +439,7 @@ int main(const int argc, char *argv[]) {
             if (parts.empty()) {
                 continue;
             }
-
+            DEBUG_LOG("parsing command: " << parts[0]);
             if (auto it = command_map.find(parts[0]); it != command_map.end()) {
                 std::vector<std::string> tail(parts.begin() + 1, parts.end());
                 auto func = it->second;
