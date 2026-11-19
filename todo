@@ -1,0 +1,41 @@
+0. State grounding and safety rails.
+DONE. Reliable window targeting: resolve real HWND (not PID cast), handle focus/minimized/z-order changes.
+2. UI state understanding: OCR/template matching/accessibility tree (UIA) so actions are based on what’s actually visible.
+3. Action acknowledgment: after each input, re-capture and verify expected change before next step.
+4. Timing model: retries, backoff, and explicit waits for UI transitions (loading spinners/dialogs/animations).
+5. Coordinate robustness: DPI scaling, multi-monitor transforms, window-relative coordinates, resize handling.
+6. Input completeness: keyboard + mouse + scroll + modifiers + hotkeys + clipboard path for text.
+7. Failure recovery: detect stuck dialogs/crashes/lost focus and re-sync to a known screen.
+    - Add states: Running, Recovering, Paused, Stopped.
+    - Heartbeat checks every tick: target alive, focused window, modal dialog present, progress advancing.
+    - Stuck detection: no UI-state change / same frame hash / repeated action timeout.
+Recovery policy:
+    1. soft retry (re-find element),
+    2. close known modal (Esc, Alt+F4 guarded),
+    3. refocus target window,
+    4. navigate to known home screen anchor,
+    5. restart app/session if needed.
+    Re-sync = wait until a known anchor set is visible (UIA/OCR/template), then resume.
+8. Cancellation/ownership: global stop, watchdog, and ensure only one controller injects input at a time.
+    - Cancellation + ownership (single injector)
+    - Global cancellation token checked before/after every action.
+    - Watchdog thread can trigger cancel on hang/crash thresholds.
+    - Single-controller lock (named mutex like Global\YourAutomationInputLock) before any input injection.
+    - If lock not acquired: fail fast with “controller already active”.
+9. Permissions/session constraints: integrity level/UAC/session desktop mismatches can block capture/input.
+    - At startup, log and validate:
+    - process integrity level vs target (medium/high),
+    - elevation/UAC status,
+    - same Windows session (WTS session id),
+    - active input desktop (OpenInputDesktop),
+    - secure desktop/UAC prompt presence.
+    - If mismatch, mark run as BlockedByEnvironment with explicit reason; do not loop blindly
+10. Auditability: action log + screenshot trail for replay/debug.
+    - Structured action log (JSONL): timestamp, action id, target descriptor, resolved coordinates, result, latency, error code.
+    - Screenshot trail:
+    - pre-action and post-action frame,
+    - on error always capture full screen + focused window metadata.
+    - Correlate with runId + stepId so you can replay timeline deterministically.
+
+
+

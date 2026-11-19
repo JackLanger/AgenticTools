@@ -1,0 +1,4 @@
+cmake-build-debug-visual-studio
+cmake-build-debug
+out/
+bin/
